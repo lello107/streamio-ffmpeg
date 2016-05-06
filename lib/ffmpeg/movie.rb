@@ -7,6 +7,7 @@ module FFMPEG
     attr_reader :video_stream, :video_codec, :video_bitrate, :colorspace, :width, :height, :sar, :dar, :frame_rate
     attr_reader :audio_stream, :audio_codec, :audio_bitrate, :audio_sample_rate, :audio_channels
     attr_reader :container
+    attr_reader :timecode, :metadata
 
     def initialize(path)
       raise Errno::ENOENT, "the file '#{path}' does not exist" unless File.exist?(path)
@@ -26,6 +27,7 @@ module FFMPEG
       fix_encoding(std_output)
 
       metadata = MultiJson.load(std_output, symbolize_keys: true)
+      @metadata = metadata
 
       if metadata.key?(:error)
 
@@ -37,6 +39,8 @@ module FFMPEG
         audio_streams = metadata[:streams].select { |stream| stream.key?(:codec_type) and stream[:codec_type] === 'audio' }
 
         @container = metadata[:format][:format_name]
+
+        @timecode = metadata[:format][:tags][:timecode] if metadata[:format][:tags]
 
         @duration = metadata[:format][:duration].to_f
 

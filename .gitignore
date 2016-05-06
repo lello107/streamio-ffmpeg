@@ -26,3 +26,4 @@ pkg
 script/*
 tmp/*
 Gemfile.lock
+streamio-ffmpeg-2.0.0.gem
